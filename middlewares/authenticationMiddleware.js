@@ -1,6 +1,7 @@
 const jwt = require("jsonwebtoken");
 
 const verifySession = async (req, res, next) => {
+  console.log('Cookies:', req.cookies);
   const token = req.cookies.accessToken;
   if (!token) return res.status(401).json({ message: "Access Denied" });
 

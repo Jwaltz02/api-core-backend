@@ -1,8 +1,8 @@
-const jwt = require('jsonwebtoken');
-const crypto = require('crypto');
-const redisClient = require('../utils/redisConfig');
+const jsonwebtoken = require("jsonwebtoken");
+const crypto = require("crypto");
+const redisClient = require("../utils/redisConfig");
 
-const generateTokenId = () => crypto.randomBytes(16).toString('hex');
+const generateTokenId = () => crypto.randomBytes(16).toString("hex");
 
 // Generate JWT Access Token
 const generateAccessToken = (empId, role) => {
@@ -21,17 +21,24 @@ const createRefreshToken = async (empId) => {
   );
 
   const sessionId = generateTokenId();
-  const refreshKey = `${process.env.NODE_ENV || 'dev'}:refresh:${empId}:${sessionId}`;
+  const refreshKey = `${
+    process.env.NODE_ENV || "dev"
+  }:refresh:${empId}:${sessionId}`;
 
   try {
     await redisClient
       .multi()
-      .hset(refreshKey, ['token', refreshToken, 'createdAt', new Date().toISOString()])
+      .hset(refreshKey, [
+        "token",
+        refreshToken,
+        "createdAt",
+        new Date().toISOString(),
+      ])
       .expire(refreshKey, 7 * 24 * 60 * 60)
       .exec();
     return { refreshToken, sessionId };
   } catch (error) {
-    console.error('Error storing refresh token in Redis:', {
+    console.error("Error storing refresh token in Redis:", {
       error: error.message,
       stack: error.stack,
       refreshKey,
@@ -46,18 +53,22 @@ const generateRefreshToken = async (req, res) => {
   try {
     const { refreshToken } = req.body;
     if (!refreshToken) {
-      return res.status(400).json({ message: 'Refresh token required' });
+      return res.status(400).json({ message: "Refresh token required" });
     }
 
     let decoded;
     try {
       decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET_KEY);
     } catch (error) {
-      return res.status(401).json({ message: 'Invalid or expired refresh token' });
+      return res
+        .status(401)
+        .json({ message: "Invalid or expired refresh token" });
     }
 
     const empId = decoded.empId;
-    const sessionKeyPattern = `${process.env.NODE_ENV || 'dev'}:refresh:${empId}:*`;
+    const sessionKeyPattern = `${
+      process.env.NODE_ENV || "dev"
+    }:refresh:${empId}:*`;
     const sessions = await redisClient.keys(sessionKeyPattern);
 
     let validSession = false;
@@ -71,10 +82,13 @@ const generateRefreshToken = async (req, res) => {
     }
 
     if (!validSession) {
-      return res.status(401).json({ message: 'Invalid session. Please log in again.' });
+      return res
+        .status(401)
+        .json({ message: "Invalid session. Please log in again." });
     }
 
-    const accessToken = jwt.sign(
+    // Generate a new access token
+    const accessToken = jsonwebtoken.sign(
       { empId },
       process.env.JWT_SECRET_KEY,
       { expiresIn: process.env.JWT_ACCESS_EXPIRY }
@@ -92,11 +106,11 @@ const generateRefreshToken = async (req, res) => {
 
     res.json({ accessToken, refreshToken: newRefreshToken });
   } catch (error) {
-    console.error('Error refreshing token:', {
+    console.error("Error refreshing token:", {
       error: error.message,
       stack: error.stack,
     });
-    return res.status(500).json({ message: 'Error refreshing token' });
+    return res.status(500).json({ message: "Error refreshing token" });
   }
 };
 

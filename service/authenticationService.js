@@ -29,7 +29,10 @@ const login = async (empId, password, req) => {
     if (!isMatch)
       throw new Error("Invalid credentials! Please enter valid credentials");
 
+    //Generating the JWT access token
     const accessToken = generateAccessToken(empId, employee.role);
+
+    // First time login using create refresh token for session refresh and all state management
     const { refreshToken, sessionId } = await createRefreshToken(empId);
 
     const userAgent = useragent.parse(req.headers["user-agent"] || "");
