@@ -7,11 +7,10 @@ const contactRoute = require("./routes/contact");
 const employeeRoutes = require("./routes/employeeRoutes");
 const departmentRoutes = require("./routes/departmentRoutes");
 const designationRoutes = require("./routes/designationRoutes");
-const teamRoutes = require("./routes/teamRoutes");
-const { runTests } = require("./tests/test-basic-DataSetup");
 
 const authRoutes = require("./routes/authenticationRoutes");
 const roleRoutes = require("./routes/roleRoutes");
+const { runTests } = require("./tests/test-basic-DataSetup"); // Adjust the path if different
 
 const multer = require("multer");
 
@@ -74,7 +73,6 @@ app.use("/api/department", departmentRoutes);
 app.use("/api/role", roleRoutes);
 app.use("/api/designation", designationRoutes);
 app.use("/api/leaves", leavesRoutes);
-app.use("/api/teams", teamRoutes);
 
 const dbName = "wouessi_ems";
 
