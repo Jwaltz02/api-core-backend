@@ -1,6 +1,7 @@
 const jsonwebtoken = require("jsonwebtoken");
 const crypto = require("crypto");
 const redisClient = require("../utils/redisConfig");
+const jwt = require("jsonwebtoken");
 
 const generateTokenId = () => crypto.randomBytes(16).toString("hex");
 
